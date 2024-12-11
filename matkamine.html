@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+ <head>
+ <title>Kaart</title>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css" />
+ <style>
+   body {padding: 0; margin: 0; }
+   html, body { height: 100%; width: 100%;}
+   #kaardikiht {float: bottom; width: 600px; height: 400px;}
+ </style>
+ <script>
+   let kaart;
+   let keskmarker, marker2;
+   let matkarajad = {
+     "Viru raba vaatetorn": L.latLng(59.46864023307146, 25.65455746894123),
+     "Pääsküla raba vaatetorn": L.latLng(59.36209275735963, 24.698370712612366),
+     "Mukri raba vaatetorn": L.latLng(58.740194620309694, 24.98449999773202),
+     "Liipsaare vaatetorn (Meenikunno)": L.latLng(57.931946176364725, 27.310000097682885),
+     "Kakerdaja raba matkarada": L.latLng(59.188554962310164, 25.50997432270079),
+     "Marimetsa raba vaatetorn": L.latLng(58.960898755043644, 24.008343126580908),
+     "Tuhu raba vaatetorn": L.latLng(58.572114666982124, 23.831671559088896),
+     "Kuresoo vaatetorn": L.latLng(58.4684101485531, 25.0358882825333),
+     "Väätsa looduskaitseala matkarada": L.latLng(58.935003321168175, 25.44598776089571),
+     "Linnutee matkaraja linnuvaatlustorn": L.latLng(58.39307429711312, 26.55545308406301)
+   }
+
+   let matkarajaMarkers = [];
+
+   function algus() {
+     kaart = L.map('kaardikiht').setView([58.69471197445739, 25.907904676708895], 16);
+     new L.TileLayer('https://tiles.maaamet.ee/tm/tms/1.0.0/hybriid@GMC/{z}/{x}/{y}.png&ASUTUS=TLU&ERIALA=DIGIHUMANITAARIA', {
+       attribution: "Map: <a href='http://www.maaamet.ee/'>Maa-amet</a>",
+       tms: true,
+     }).addTo(kaart);
+
+     marker2 = L.marker([58.69471197445739, 25.907904676708895], { draggable: true })
+       .addTo(kaart)
+       .bindPopup("Mandri-Eesti keskpunkt");
+
+     marker2.on("move", liigub);
+   }
+
+   function liigub() {
+     let vastused = []
+     for (let koht in matkarajad) {
+       vastused.push([matkarajad[koht].distanceTo(marker2.getLatLng()), koht]);
+     }
+     vastused.sort((a, b) => a[0] - b[0]);
+     vastus.innerText = "Lähim: " + vastused[0][1] + ", " +
+       Math.round(vastused[0][0]) + "m";
+   }
+
+   function naitaMatkarajad() {
+     // Clear existing markers if already added
+     matkarajaMarkers.forEach(marker => kaart.removeLayer(marker));
+     matkarajaMarkers = [];
+
+     // Add markers for matkarajad
+     for (let koht in matkarajad) {
+       let marker = L.marker(matkarajad[koht]).addTo(kaart)
+         .bindPopup(koht);
+       matkarajaMarkers.push(marker);
+     }
+   }
+
+ </script>
+ </head>  
+ <body onload="algus()">
+   <div id="kaardikiht"></div>
+   <div id="vastus">abc</div>
+   <button onclick="naitaMatkarajad()">Näita Matkarajad</button>
+ </body>
+</html>
